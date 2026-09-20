@@ -2,14 +2,47 @@ import 'dart:io';
 
 import 'package:lab2_todo/todo.dart';
 
-void printMenu() {
-  print('');
-  print('ToDo список');
-  print('add    - добавить задачу');
-  print('list   - показать все задачи');
-  print('done   - отметить выполненной');
-  print('delete - удалить задачу');
-  print('exit   - выйти');
+void main() {
+  List<Todo> todos = [];
+
+  while (true) {
+    print('\n--- ToDo Приложение ---');
+    print('1. Показать все задачи');
+    print('2. Добавить задачу');
+    print('3. Отметить как выполненную');
+    print('4. Выйти');
+    stdout.write('Выберите действие: ');
+
+    String? choice = stdin.readLineSync();
+
+    switch (choice) {
+      case '1':
+        showTodos(todos);
+        break;
+      case '2':
+        addTodo(todos);
+        break;
+      case '3':
+        completeTodo(todos);
+        break;
+      case '4':
+        print('До свидания!');
+        return;
+      default:
+        print('Неверный ввод, попробуйте снова.');
+    }
+  }
+}
+
+void showTodos(List<Todo> todos) {
+  if (todos.isEmpty) {
+    print('Список задач пуст');
+    return;
+  }
+  print('\nСписок задач:');
+  for (var task in todos) {
+    print(task);
+  }
 }
 
 void addTodo(List<Todo> todos) {
@@ -21,98 +54,32 @@ void addTodo(List<Todo> todos) {
     return;
   }
 
-  int newId = todos.isEmpty ? 1 : todos.last.id + 1;
-  todos.add(Todo(id: newId, title: input.trim()));
+  todos.add(Todo(title: input.trim()));
   print('Задача добавлена!');
 }
 
-void listTodos(List<Todo> todos) {
+void completeTodo(List<Todo> todos) {
   if (todos.isEmpty) {
     print('Список задач пуст');
     return;
   }
 
-  print('');
-  for (var todo in todos) {
-    print(todo);
-  }
-}
-
-void completeTodo(List<Todo> todos) {
-  stdout.write('ID задачи: ');
+  stdout.write('Введите ID задачи для отметки: ');
   String? input = stdin.readLineSync();
-  if (input == null) return;
+  int? id = int.tryParse(input ?? '');
 
-  int? id = int.tryParse(input.trim());
   if (id == null) {
-    print('Ошибка: введите число');
+    print('Ошибка: введите корректное число');
     return;
   }
 
-  for (var todo in todos) {
-    if (todo.id == id) {
-      todo.complete();
-      print('Задача отмечена выполненной!');
+  for (var task in todos) {
+    if (task.id == id) {
+      task.complete();
+      print('Задача "${task.title}" отмечена как выполненная!');
       return;
     }
   }
 
   print('Задача с ID $id не найдена');
-}
-
-void deleteTodo(List<Todo> todos) {
-  stdout.write('ID задачи: ');
-  String? input = stdin.readLineSync();
-  if (input == null) return;
-
-  int? id = int.tryParse(input.trim());
-  if (id == null) {
-    print('Ошибка: введите число');
-    return;
-  }
-
-  for (int i = 0; i < todos.length; i++) {
-    if (todos[i].id == id) {
-      todos.removeAt(i);
-      print('Задача удалена!');
-      return;
-    }
-  }
-
-  print('Задача с ID $id не найдена');
-}
-
-void main() {
-  List<Todo> todos = [];
-  printMenu();
-
-  while (true) {
-    stdout.write('> ');
-    String? input = stdin.readLineSync();
-    if (input == null) continue;
-
-    String command = input.trim().toLowerCase();
-    if (command.isEmpty) continue;
-
-    switch (command) {
-      case 'add':
-        addTodo(todos);
-        break;
-      case 'list':
-        listTodos(todos);
-        break;
-      case 'done':
-        completeTodo(todos);
-        break;
-      case 'delete':
-        deleteTodo(todos);
-        break;
-      case 'exit':
-        print('До свидания!');
-        return;
-      default:
-        printMenu();
-        print('Неизвестная команда.');
-    }
-  }
 }
